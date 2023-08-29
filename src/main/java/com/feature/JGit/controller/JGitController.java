@@ -1,9 +1,6 @@
 package com.feature.JGit.controller;
 
-import com.feature.JGit.entity.CommitDetails;
-import com.feature.JGit.entity.FileDetails;
-import com.feature.JGit.entity.ModifiedList;
-import com.feature.JGit.entity.FileWithContent;
+import com.feature.JGit.entity.*;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -21,7 +18,10 @@ import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +40,8 @@ import java.util.UUID;
 public class JGitController {
     @Value("${file.path.name}")
     private String filePath;
+
+    Logger log = LoggerFactory.getLogger(JGitController.class);
     @GetMapping("/getMapList")
     public String getMapList() {
         return "running";
@@ -230,6 +232,35 @@ public class JGitController {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @GetMapping("/fetchDraftMapsFromStash1")
+    public ArrayList<RevCommit> fetchDraftMapsFromStash1() {
+        String path="src/main/resources/Draft_Maps/draft1.json";
+        List<DraftMap> draftMapsList = new ArrayList<>();
+        ArrayList<RevCommit> commitList=new ArrayList<>();
+        String repositoryPath = "H:\\repository\\ixmcm";
+        try (Repository repository = Git.open(new File(repositoryPath)).getRepository()) {
+            Git git=new Git(repository);
+                Iterable<RevCommit>log=git.log().addPath(path).call();
+                RevCommit start=null;
+//                System.out.println("log info"+log);
+                for(RevCommit commit :log) {
+                    if(commitList.contains(commit)){
+                        start=null;
+                    }
+                    else{
+                        start=commit;
+                        commitList.add(commit);
+                        System.out.println("commit"+commit);
+                    }
+
+                }
+//                if(start ==null) return commitList;
+        }catch (Exception e) {
+            log.error("Error Occurred file fetching the Draft Maps from Stash : "+e);
+        }
+        return commitList;
     }
 
 }
