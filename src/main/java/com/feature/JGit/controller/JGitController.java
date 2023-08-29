@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +41,7 @@ import java.util.UUID;
 public class JGitController {
     @Value("${file.path.name}")
     private String filePath;
-
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd  hh:mm:ss a");
     Logger log = LoggerFactory.getLogger(JGitController.class);
     @GetMapping("/getMapList")
     public String getMapList() {
@@ -235,32 +236,24 @@ public class JGitController {
     }
 
     @GetMapping("/fetchDraftMapsFromStash1")
-    public ArrayList<RevCommit> fetchDraftMapsFromStash1() {
-        String path="src/main/resources/Draft_Maps/draft1.json";
+    public List<DraftMap> fetchDraftMapsFromStash1() {
+        String path="src/main/resources/Draft_Maps";
         List<DraftMap> draftMapsList = new ArrayList<>();
-        ArrayList<RevCommit> commitList=new ArrayList<>();
+//        ArrayList<RevCommit> commitList=new ArrayList<>();
         String repositoryPath = "H:\\repository\\ixmcm";
         try (Repository repository = Git.open(new File(repositoryPath)).getRepository()) {
             Git git=new Git(repository);
                 Iterable<RevCommit>log=git.log().addPath(path).call();
-                RevCommit start=null;
-//                System.out.println("log info"+log);
                 for(RevCommit commit :log) {
-                    if(commitList.contains(commit)){
-                        start=null;
+                    if(commit.getFullMessage().contains(commit.getAuthorIdent().getName())){
+                        DraftMap map=new DraftMap(commit.getAuthorIdent().getName(),df.format(commit.getAuthorIdent().getWhen()), commit.getFullMessage());
+                        draftMapsList.add(map);
                     }
-                    else{
-                        start=commit;
-                        commitList.add(commit);
-                        System.out.println("commit"+commit);
-                    }
-
                 }
-//                if(start ==null) return commitList;
         }catch (Exception e) {
             log.error("Error Occurred file fetching the Draft Maps from Stash : "+e);
         }
-        return commitList;
+        return draftMapsList;
     }
 
 }
