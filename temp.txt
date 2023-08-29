@@ -1,0 +1,1 @@
+ Direct self-reference leading to cycle (through reference chain: java.util.ArrayList[0]->org.eclipse.jgit.revwalk.RevCommit["tree"]->org.eclipse.jgit.revwalk.RevTree["id"])
