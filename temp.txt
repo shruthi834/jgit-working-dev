@@ -1,1 +1,29 @@
- Direct self-reference leading to cycle (through reference chain: java.util.ArrayList[0]->org.eclipse.jgit.revwalk.RevCommit["tree"]->org.eclipse.jgit.revwalk.RevTree["id"])
+public List<DraftMap> fetchDraftMapsFromStash(String currentUser) {
+        List<DraftMap> draftMapsList = new ArrayList<>();
+        currentUser = "shruthie";//TODO remove thisafter Unit Tests
+        try (Repository repository = Git.open(new File(stashRepository)).getRepository()) {
+            Git git=new Git(repository);
+            File filesInDrafts = new File(stashDraft);
+            if (!filesInDrafts.isDirectory()) {
+                throw new RuntimeException(" Invalid Drafts file path");
+            }
+            List<String> allDrafts = Arrays.asList(filesInDrafts.list());
+            for (String file: allDrafts){
+                Iterable<RevCommit> commitListForFile = git.log().addPath(file).call();
+                log.info("commit list file"+commitListForFile);
+                for(RevCommit commit : commitListForFile) {
+                    System.out.println(commit);
+                    DraftMap map=new DraftMap(commit.getAuthorIdent().getName(),file.substring(0, file.lastIndexOf('.')),df.format(commit.getAuthorIdent().getWhen()));
+                    if(currentUser != null && commit.getFullMessage().contains(currentUser)) {
+                        draftMapsList.add(map);
+                        continue;
+                    }
+                    draftMapsList.add(map);
+                }
+            }
+
+        }catch (Exception e) {
+            log.error("Error Occurred file fetching the Draft Maps from Stash : "+e);
+        }
+        return draftMapsList;
+    }
