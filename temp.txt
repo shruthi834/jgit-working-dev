@@ -1,29 +1,35 @@
 public List<DraftMap> fetchDraftMapsFromStash(String currentUser) {
         List<DraftMap> draftMapsList = new ArrayList<>();
-        currentUser = "shruthie";//TODO remove thisafter Unit Tests
-        try (Repository repository = Git.open(new File(stashRepository)).getRepository()) {
+        List<DraftMap> allDraftMapList = new ArrayList<>();
+//        currentUser = "shruthie";//TODO remove thisafter Unit Tests
+        try (Repository repository = Git.open(new File("H:\\repository\\ixmcm")).getRepository()) {
             Git git=new Git(repository);
             File filesInDrafts = new File(stashDraft);
             if (!filesInDrafts.isDirectory()) {
                 throw new RuntimeException(" Invalid Drafts file path");
             }
-            List<String> allDrafts = Arrays.asList(filesInDrafts.list());
+            List<String> allDrafts = Arrays.stream(filesInDrafts.list())
+                    .filter(filename->filename.endsWith(".json"))
+                    .collect(Collectors.toList());
+//            Arrays.asList(filesInDrafts.list())
             for (String file: allDrafts){
-                Iterable<RevCommit> commitListForFile = git.log().addPath(file).call();
+                Iterable<RevCommit> commitListForFile = git.log().addPath(stashDraft+file).call();
                 log.info("commit list file"+commitListForFile);
                 for(RevCommit commit : commitListForFile) {
-                    System.out.println(commit);
                     DraftMap map=new DraftMap(commit.getAuthorIdent().getName(),file.substring(0, file.lastIndexOf('.')),df.format(commit.getAuthorIdent().getWhen()));
                     if(currentUser != null && commit.getFullMessage().contains(currentUser)) {
                         draftMapsList.add(map);
-                        continue;
+                        break;
                     }
-                    draftMapsList.add(map);
+                    allDraftMapList.add(map);
+                    break;
                 }
             }
 
         }catch (Exception e) {
-            log.error("Error Occurred file fetching the Draft Maps from Stash : "+e);
+            log.error("Error Occurred file fetching the Draft Maps from Stash : ",e);
         }
+        if(currentUser == null)
+            draftMapsList.addAll(allDraftMapList);
         return draftMapsList;
     }
