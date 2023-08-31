@@ -1,28 +1,81 @@
-public List<DraftMap> fetchDraftMapsFromStash(String currentUser) {
-        List<DraftMap> draftMapsList = new ArrayList<>();
-        List<DraftMap> allDraftMapList = new ArrayList<>();
-        currentUser = "shruthie";//TODO remove thisafter Unit Tests
-        try (Repository repository = Git.open(new File("H:\\repository\\ixmcm")).getRepository()) {
-            Git git=new Git(repository);
-            File filesInDrafts = new File(stashDraft);
-            if (!filesInDrafts.isDirectory()) {
-                throw new RuntimeException(" Invalid Drafts file path");
-            }
-            List<String> allDrafts = Arrays.stream(filesInDrafts.list())
-                    .filter(filename->filename.endsWith(".json"))
-                    .collect(Collectors.toList());
-//            Arrays.asList(filesInDrafts.list())
-            for (String file: allDrafts){
-                Iterable<RevCommit> commitListForFile = git.log().addPath(stashDraft+file).call();
-                log.info("commit list file"+commitListForFile);
-                for(RevCommit commit : commitListForFile) {
-                    DraftMap map=new DraftMap(commit.getAuthorIdent().getName(),file.substring(0, file.lastIndexOf('.')),commit.getAuthorIdent().getWhen());
-//                    df.format(commit.getAuthorIdent().getWhen())
-                    if(currentUser != null && commit.getFullMessage().contains(currentUser)) {
-                        draftMapsList.add(map);
-                        break;
-                    }
-                    allDraftMapList.add(map);
-                    break;
-                }
-            }
+@PostMapping("/delete")
+
+    public String deleteAndCommit(@RequestParam String fileName) throws IOException, GitAPIException {
+
+        Repository repository = new FileRepositoryBuilder()
+
+                .setGitDir(new File(repositoryPath + "/.git"))
+
+                .build();
+
+        Git git = new Git(repository);
+
+ 
+
+        // Delete the specified file from the working directory
+
+        File fileToDelete = new File(repositoryPath, fileName);
+
+        if (!fileToDelete.delete()) {
+
+            return "File not found: " + fileName;
+
+        }
+
+ 
+
+        // Stage the deletion
+
+        git.rm().addFilepattern(fileName).call();
+
+ 
+
+        // Commit changes
+
+        PersonIdent personIdent = new PersonIdent("ryeso02", "ryeso@opteamix.com");
+
+        git.commit()
+
+                .setAuthor(personIdent)
+
+                .setCommitter(personIdent)
+
+                .setMessage("Deleted file: " + fileName)
+
+                .call();
+
+ 
+
+        // Push to remote repository using Personal Access Token
+
+        String personalAccessToken = "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"; // Replace with your actual PAT
+
+        pushToRemote(git, personalAccessToken);
+
+ 
+
+        git.close();
+
+        repository.close();
+
+ 
+
+        return "File deleted, changes committed, and pushed to remote.";
+
+    }
+
+ 
+
+    // Helper method to push changes to remote repository
+
+    private void pushToRemote(Git git, String personalAccessToken) throws GitAPIException {
+
+        git.push()
+
+                .setRemote(remoteRepositoryUrl)
+
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(personalAccessToken, ""))
+
+                .call();
+
+    }
