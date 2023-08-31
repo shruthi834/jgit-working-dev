@@ -1,81 +1,85 @@
-@PostMapping("/delete")
+<label class="toggle">
+        <input type="checkbox" id="toggleSwitch">
+        <span class="slider"></span>
+    </label>
 
-    public String deleteAndCommit(@RequestParam String fileName) throws IOException, GitAPIException {
+css
+/* styles.css */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
 
-        Repository repository = new FileRepositoryBuilder()
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
 
-                .setGitDir(new File(repositoryPath + "/.git"))
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
 
-                .build();
+input:checked + .slider {
+    background-color: #2196F3;
+}
 
-        Git git = new Git(repository);
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+js
+/* styles.css */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
 
- 
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
 
-        // Delete the specified file from the working directory
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
 
-        File fileToDelete = new File(repositoryPath, fileName);
+input:checked + .slider {
+    background-color: #2196F3;
+}
 
-        if (!fileToDelete.delete()) {
-
-            return "File not found: " + fileName;
-
-        }
-
- 
-
-        // Stage the deletion
-
-        git.rm().addFilepattern(fileName).call();
-
- 
-
-        // Commit changes
-
-        PersonIdent personIdent = new PersonIdent("ryeso02", "ryeso@opteamix.com");
-
-        git.commit()
-
-                .setAuthor(personIdent)
-
-                .setCommitter(personIdent)
-
-                .setMessage("Deleted file: " + fileName)
-
-                .call();
-
- 
-
-        // Push to remote repository using Personal Access Token
-
-        String personalAccessToken = "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"; // Replace with your actual PAT
-
-        pushToRemote(git, personalAccessToken);
-
- 
-
-        git.close();
-
-        repository.close();
-
- 
-
-        return "File deleted, changes committed, and pushed to remote.";
-
-    }
-
- 
-
-    // Helper method to push changes to remote repository
-
-    private void pushToRemote(Git git, String personalAccessToken) throws GitAPIException {
-
-        git.push()
-
-                .setRemote(remoteRepositoryUrl)
-
-                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(personalAccessToken, ""))
-
-                .call();
-
-    }
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
