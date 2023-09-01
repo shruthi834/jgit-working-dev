@@ -1,5 +1,12 @@
-function toggleFunction() {
-    var toggleSwitch = document.getElementById("toggleSwitch");
+<label class="switch">
+    <input type="checkbox" id="toggleSwitch">
+    <span class="slider"></span>
+</label>
+<p id="status">Toggle is OFF</p>
+
+// Add an event listener to the checkbox
+document.getElementById("toggleSwitch").addEventListener("change", function() {
+    var toggleSwitch = this;
     var status = document.getElementById("status");
 
     if (toggleSwitch.checked) {
@@ -9,16 +16,4 @@ function toggleFunction() {
         status.innerHTML = "Toggle is OFF";
         // Add your logic for when the toggle is OFF here
     }
-}
-
-
-<label class="switch">
-            <input type="checkbox" id="toggleSwitch" onclick="toggleFunction()">
-            <span class="slider"></span>
-        </label>
-        <p id="status">Toggle is OFF</p>
-
-
-createMap:248 Uncaught ReferenceError: toggleFunction is not defined
-    at HTMLInputElement.onclick (createMap:248:81)
-onclick @ createMap:248
+});
