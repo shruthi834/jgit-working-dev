@@ -1,31 +1,20 @@
-<label class="switch">
-    <input type="checkbox" id="toggleSwitch">
-    <span class="slider"></span>
-</label>
-<p id="status">Toggle is OFF</p>
+ @RequestMapping("/js/mapEditor/savedMapGrid.js")
+    public String savedMapGrid(Model model) {
+        String currentUser = serviceUtils.getUserName();
+        List<DraftMap> draftMaps = stashService.fetchDraftMapsFromStash(currentUser,false);
 
-// Add an event listener to the checkbox
-document.getElementById("toggleSwitch").addEventListener("change", function() {
-    var toggleSwitch = this;
-    var status = document.getElementById("status");
 
-    if (toggleSwitch.checked) {
-        status.innerHTML = "Toggle is ON";
-        // Add your logic for when the toggle is ON here
-    } else {
-        status.innerHTML = "Toggle is OFF";
-        // Add your logic for when the toggle is OFF here
+        ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
+
+        try {
+            model.addAttribute("savedMaps", writer.writeValueAsString(draftMaps));
+        } catch (JsonProcessingException ex) {
+            log.error("Error getting saved maps", ex);
+            model.addAttribute("error", "{\"result\":\"ERROR\", \"error\":\"" + ex.getMessage() + "\"}");
+        }
+        List<String> cols = ixWebUtils.getLoanTranslateColumns();
+        cols.sort(Comparator.naturalOrder());
+        model.addAttribute("loanTranslateColumns", cols);
+
+        return "mapEditor/savedMapGrid.js";
     }
-});
-
-
-  function load(id, mapName,toggleValue) {
-    console.log("toggle value"+toggleValue1);
-        $.getJSON('/api/getSavedDraft', {
-            mapName: mapName,
-            toggleValue:toggleValue1
-            /*toggleValue:!$('#currentUserList').prop('checked')*/
-        }, function (data) {
-            restoreCallBack(mapName, data);
-        });
-    };
