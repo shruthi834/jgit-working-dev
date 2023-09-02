@@ -18,3 +18,15 @@
 
         return "mapEditor/savedMapGrid.js";
     }
+
+
+
+ function retrieve(toggleValue) {
+    console.log("toggle value",toggleValue1);
+        $.getJSON('/js/mapEditor/savedMapGrid.js', {
+            toggleValue:toggleValue1
+            /*toggleValue:!$('#currentUserList').prop('checked')*/
+        }, function (data) {
+            restoreCallBack(mapName, data);
+        });
+    };
