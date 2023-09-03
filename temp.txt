@@ -34,3 +34,29 @@ GET http://localhost:8080/js/mapEditor/savedMapGrid.js net::ERR_ABORTED 400
 createMap:1 Refused to execute script from 'http://localhost:8080/js/mapEditor/savedMapGrid.js' because its MIME type ('application/json') is not executable, and strict MIME type checking is enabled.
 createMap.js:162 Uncaught ReferenceError: initSavedMapGrid is not defined
     at createMap.js:162:20
+
+
+
+// Make an API request to get the JavaScript file
+fetch('https://api.example.com/your-api-endpoint', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/javascript', // Specify that you expect a JavaScript file
+  },
+})
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.text(); // Read the response as text
+  })
+  .then(jsCode => {
+    // The 'jsCode' variable now contains the JavaScript code from the API
+    console.log(jsCode);
+
+    // You can execute or use the code as needed
+    // Note: Executing external JavaScript code can have security implications.
+  })
+  .catch(error => {
+    console.error('There was a problem with the fetch operation:', error);
+  });
