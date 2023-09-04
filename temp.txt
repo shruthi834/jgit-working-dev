@@ -1,81 +1,16 @@
- @RequestMapping("/js/mapEditor/savedMapGrid.js")
-    public String savedMapGrid(Model model) {
-        String currentUser = serviceUtils.getUserName();
-        List<DraftMap> draftMaps = stashService.fetchDraftMapsFromStash(currentUser,false);
+// Make sure 'savedMapGrid' is defined before the event listener
+function savedMapGrid(toggleValue) {
+    // Your implementation here
+    $.getJSON('/js/mapEditor/savedMapGrid.js', {
+        savedMap: savedMap
+    });
+}
 
-
-        ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
-
-        try {
-            model.addAttribute("savedMaps", writer.writeValueAsString(draftMaps));
-        } catch (JsonProcessingException ex) {
-            log.error("Error getting saved maps", ex);
-            model.addAttribute("error", "{\"result\":\"ERROR\", \"error\":\"" + ex.getMessage() + "\"}");
-        }
-        List<String> cols = ixWebUtils.getLoanTranslateColumns();
-        cols.sort(Comparator.naturalOrder());
-        model.addAttribute("loanTranslateColumns", cols);
-
-        return "mapEditor/savedMapGrid.js";
-    }
-
-
-
- function retrieve(toggleValue) {
-    console.log("toggle value",toggleValue1);
-        $.getJSON('/js/mapEditor/savedMapGrid.js', {
-            toggleValue:toggleValue1
-            /*toggleValue:!$('#currentUserList').prop('checked')*/
-        }, function (data) {
-            restoreCallBack(mapName, data);
-        });
-    };
-GET http://localhost:8080/js/mapEditor/savedMapGrid.js net::ERR_ABORTED 400
-createMap:1 Refused to execute script from 'http://localhost:8080/js/mapEditor/savedMapGrid.js' because its MIME type ('application/json') is not executable, and strict MIME type checking is enabled.
-createMap.js:162 Uncaught ReferenceError: initSavedMapGrid is not defined
-    at createMap.js:162:20
-
-
-
-// Make an API request to get the JavaScript file
-fetch('https://api.example.com/your-api-endpoint', {
-  method: 'GET',
-  headers: {
-    'Accept': 'application/javascript', // Specify that you expect a JavaScript file
-  },
-})
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.text(); // Read the response as text
-  })
-  .then(jsCode => {
-    // The 'jsCode' variable now contains the JavaScript code from the API
-    console.log(jsCode);
-
-    // You can execute or use the code as needed
-    // Note: Executing external JavaScript code can have security implications.
-  })
-  .catch(error => {
-    console.error('There was a problem with the fetch operation:', error);
-  });
-
-
-    function savedMapGrid(toggleValue) {
-            $.getJSON('/js/mapEditor/savedMapGrid.js', {
-                savedMap: savedMap
-            });
-        };
-        
 document.getElementById("currentUserList").addEventListener("change", function() {
     var toggleSwitch = this;
-    toggleValue1=toggleSwitch.checked;
-    if(toggleSwitch.checked){
-//         $.getScript("/js/mapEditor/savedMapGrid.js",
-//                         alert("toggle is checked "));
-//            }
-savedMapGrid(toggleValue1);
-//        retrieve("",toggleSwitch.checked);
+    toggleValue1 = toggleSwitch.checked;
+    
+    if (toggleSwitch.checked) {
+        savedMapGrid(toggleValue1); // Call the function when it's in scope
     }
 });
