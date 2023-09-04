@@ -1,19 +1,7 @@
-// Make sure 'savedMapGrid' is defined before the event listener
-function savedMapGrid(toggleValue) {
-    // Your implementation here
-    $.getJSON('/js/mapEditor/savedMapGrid.js', {
-        savedMap: savedMap
-    });
-}
-
 document.getElementById("currentUserList").addEventListener("change", function() {
     var toggleSwitch = this;
     toggleValue1 = toggleSwitch.checked;
-    
-    if (toggleSwitch.checked) {
-        savedMapGrid(toggleValue1); // Call the function when it's in scope
-    }
-});
-
-    var savedMapGrid = new Slick.Grid("#savedMapGrid", new savedMapDP(), savedMapColumns, savedMapGridOptions);
-
+    $.getJSON('/js/mapEditor/savedMapGrid.js?isAllSelected='+toggleValue1);
+    savedMapGrid.invalidate();
+    savedMapGrid.render();
+ });
