@@ -1,23 +1,9 @@
 document.getElementById("currentUserList").addEventListener("change", function() {
     var toggleSwitch = this;
     toggleValue1 = toggleSwitch.checked;
-    $.getJSON('/js/mapEditor/savedMapGrid.js?isAllSelected='+toggleValue1);
-    savedMapGrid.invalidate();
-    savedMapGrid.render();
+    $.getJSON('/js/mapEditor/savedMapGrid.js?isAllSelected='+toggleValue1, function () {
+          console.log(" Bad or Ugly...");
+          savedMapGrid.invalidateAllRows();
+          savedMapGrid.render();
+      });
  });
-
-var savedMapGrid = new Slick.Grid("#savedMapGrid", new savedMapDP(), savedMapColumns, savedMapGridOptions);
-// savedMapGrid.onSort.subscribe(sortFn);
-// savedMapGrid.setSortColumn("key", true);
-    savedMapGrid.setSelectionModel(new Slick.RowSelectionModel());
-    savedMapGrid.onClick.subscribe(function (e, args) {
-        var cell = savedMapGrid.getCellFromEvent(e);
-        savedMapGrid.setSelectedRows(cell.row);
-        if (e.target.outerText === 'restore_page') {
-            load(savedMapData[args.row].id, savedMapData[args.row].mapName);
-        } else if (e.target.outerText === 'delete') {
-            deleteMap(args.row, savedMapData[args.row].mapName)
-        }
-        e.stopPropagation();
-    });
-
