@@ -60,3 +60,22 @@ fetch('https://api.example.com/your-api-endpoint', {
   .catch(error => {
     console.error('There was a problem with the fetch operation:', error);
   });
+
+
+    function savedMapGrid(toggleValue) {
+            $.getJSON('/js/mapEditor/savedMapGrid.js', {
+                savedMap: savedMap
+            });
+        };
+        
+document.getElementById("currentUserList").addEventListener("change", function() {
+    var toggleSwitch = this;
+    toggleValue1=toggleSwitch.checked;
+    if(toggleSwitch.checked){
+//         $.getScript("/js/mapEditor/savedMapGrid.js",
+//                         alert("toggle is checked "));
+//            }
+savedMapGrid(toggleValue1);
+//        retrieve("",toggleSwitch.checked);
+    }
+});
