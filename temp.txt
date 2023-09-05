@@ -7,3 +7,4 @@ document.getElementById("currentUserList").addEventListener("change", function()
           savedMapGrid.render();
       });
  });
+when the api is called for returning the javascript file is it not executing the code from that file from starting
