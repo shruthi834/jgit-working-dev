@@ -8,3 +8,14 @@ document.getElementById("currentUserList").addEventListener("change", function()
       });
  });
 when the api is called for returning the javascript file is it not executing the code from that file from starting
+
+document.getElementById("currentUserList").addEventListener("change", function() {
+    var toggleSwitch = this;
+    toggleValue1 = toggleSwitch.checked;
+    console.log("entered the api");
+    $.getScript('/js/mapEditor/savedMapGrid.js?isAllSelected='+toggleValue1, function (data) {
+          console.log(" Bad or Ugly...", data);
+          var savedMapData = ;
+          savedMapGrid.invalidate();
+          savedMapGrid.render();
+      });
