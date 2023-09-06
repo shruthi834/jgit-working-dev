@@ -1,1 +1,3 @@
 org.apache.commons.io.FileUtils.writeStringToFile()
+import org.apache.commons.io.FileUtils;
+FileUtils.writeStringToFile(file, content, "UTF-8");
