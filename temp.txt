@@ -1,3 +1,1 @@
-org.apache.commons.io.FileUtils.writeStringToFile()
-import org.apache.commons.io.FileUtils;
-FileUtils.writeStringToFile(file, content, "UTF-8");
+commit 7b530b4403ca9b135d49a89007e9bc0cfe46d8cd 1693407293 ----sp how to get only 7b530b4403ca9b135d49a89007e9bc0cfe46d8cd this part in java
