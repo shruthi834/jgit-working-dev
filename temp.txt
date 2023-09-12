@@ -1,1 +1,13 @@
-commit 7b530b4403ca9b135d49a89007e9bc0cfe46d8cd 1693407293 ----sp how to get only 7b530b4403ca9b135d49a89007e9bc0cfe46d8cd this part in java
+public MapSpec(@JsonProperty("mapName") String mapName,
+                   @JsonProperty("fhlbId") String fhlbId,
+                   @JsonProperty("rowDefinitions") RowDefinition[] rowDefinitions,
+                   @JsonProperty("codeLists") CodeList[] codeLists,
+                   @JsonProperty("srcCode") String srcCode,
+                   @JsonProperty(value = "gisMap", required = false, defaultValue = "N") String gisMap) {
+        this.mapName = mapName;
+        this.rowDefinitions = rowDefinitions;
+        this.codeLists = codeLists;
+        this.fhlbId = fhlbId;
+        this.srcCode = srcCode;
+        this.gisMap = gisMap;
+    }
