@@ -1,13 +1,10 @@
 listA = listA.stream()
     .map(a -> {
-        Optional<MyType> matchingB = listB.stream()
-            .filter(b -> a.getType().equals(b.getType()))
-            .findFirst();
+        boolean hasMatchingB = listB.stream()
+            .anyMatch(b -> a.getType().equals(b.getType()));
 
-        if (matchingB.isPresent()) {
-            // Set a.getValue() to a particular value when getType is equal
-            a.setValue(matchingB.get().getNewValue());
-        }
+        // Set the active state based on whether there's a matching element in listB
+        a.setActive(hasMatchingB);
 
         return a;
     })
