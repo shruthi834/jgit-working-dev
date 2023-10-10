@@ -1,1 +1,14 @@
-java.lang.ClassFormatError: Extra bytes at end of class file
+listA = listA.stream()
+    .map(a -> {
+        Optional<MyType> matchingB = listB.stream()
+            .filter(b -> a.getType().equals(b.getType()))
+            .findFirst();
+
+        if (matchingB.isPresent()) {
+            // Set a.getValue() to a particular value when getType is equal
+            a.setValue(matchingB.get().getNewValue());
+        }
+
+        return a;
+    })
+    .collect(Collectors.toList());
