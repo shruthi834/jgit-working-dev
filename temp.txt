@@ -1,11 +1,7 @@
-listA = listA.stream()
-    .map(a -> {
-        boolean hasMatchingB = listB.stream()
-            .anyMatch(b -> a.getType().equals(b.getType()));
-
-        // Set the active state based on whether there's a matching element in listB
-        a.setActive(hasMatchingB);
-
-        return a;
-    })
-    .collect(Collectors.toList());
+public void openGitRepository() throws IOException {
+    if (repository == null)
+        repository = new RepositoryBuilder()
+                .setGitDir(new File(repositoryPath+ "/.git"))
+                .build();
+    this.git = new Git(repository);
+}
