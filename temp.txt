@@ -1,30 +1,8 @@
-public void openGitRepository() throws IOException {
-    if (repository == null)
-        repository = new RepositoryBuilder()
-                .setGitDir(new File(repositoryPath+ "/.git"))
-                .build();
-    this.git = new Git(repository);
-}
-public void closeGitRepository() {
-    if (this.git != null) {
-        this.git.getRepository().close();
-    }
-}
-public List<String> getCommitMessages(String filePath) {
-    try {
-        openGitRepository();
-        Iterable<RevCommit> commits = this.git.log()
-                .addPath(filePath)
-                .call();
+$( document ).ajaxStart(function() {
+    $( "#loading" ).show();
+});
+and hide it when the ajax calls stop
 
-        return StreamSupport.stream(commits.spliterator(), false)
-                .map(RevCommit::getFullMessage)
-                .collect(Collectors.toList());
-    } catch (IOException | GitAPIException e) {
-        e.printStackTrace();
-        // Return a non-empty list with a placeholder message
-        return Collections.singletonList("Error: Unable to retrieve commit messages.");
-    } finally {
-        closeGitRepository();
-    }
-}
+$( document ).ajaxStop(function() {
+    $( "#loading" ).hide();
+});
