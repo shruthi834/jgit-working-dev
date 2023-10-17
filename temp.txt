@@ -6,3 +6,23 @@ and hide it when the ajax calls stop
 $( document ).ajaxStop(function() {
     $( "#loading" ).hide();
 });
+ <div id="loading">
+    <img src="loading.gif" alt="Loading...">
+  </div>
+
+#loading {
+  display: none; /* Initially hide the loading overlay */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background overlay */
+  text-align: center;
+  padding-top: 20%;
+  z-index: 9999; /* Place it above other content */
+}
+
+#loading img {
+  width: 50px; /* Adjust the size of your loading image as needed */
+}
