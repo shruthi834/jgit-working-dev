@@ -26,3 +26,4 @@ $( document ).ajaxStop(function() {
 #loading img {
   width: 50px; /* Adjust the size of your loading image as needed */
 }
+GET http://localhost:8080/loading.gif 404 (Not Found)
