@@ -1,29 +1,31 @@
-$( document ).ajaxStart(function() {
-    $( "#loading" ).show();
-});
-and hide it when the ajax calls stop
-
-$( document ).ajaxStop(function() {
-    $( "#loading" ).hide();
-});
- <div id="loading">
-    <img src="loading.gif" alt="Loading...">
-  </div>
-
-#loading {
-  display: none; /* Initially hide the loading overlay */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background overlay */
-  text-align: center;
-  padding-top: 20%;
-  z-index: 9999; /* Place it above other content */
+[Tuesday 17:38] Rahul Yeso
+public static void main(String[] args) {
+    String csvFile = "C:\\Users\\ryeso\\Downloads\\listOfCustomers (2).csv";
+    String targetId = "6"; // The ID you want to look up
+    try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(csvFile)).build()) {
+        String[] header = csvReader.readNext(); // Read the header row
+        if (header != null) {
+            int idIndex = -1;
+            for (int i = 0; i < header.length; i++) {
+                if ("ID".equalsIgnoreCase(header[i])) {
+                    idIndex = i;
+                    break;
+                }
+            }
+            if (idIndex >= 0) {
+                String[] row;
+                while ((row = csvReader.readNext()) != null) {
+                    if (targetId.equals(row[idIndex])) {
+                        // Print the complete row for the target ID
+                        for (int i = 0; i < header.length; i++) {
+                            System.out.println(header[i] + ": " + row[i]);
+                        }
+                        break; // Exit the loop after finding the target ID
+                    }
+                }
+            }
+        }
+    } catch (IOException | CsvValidationException e) {
+        e.printStackTrace();
+    }
 }
-
-#loading img {
-  width: 50px; /* Adjust the size of your loading image as needed */
-}
-GET http://localhost:8080/loading.gif 404 (Not Found)
