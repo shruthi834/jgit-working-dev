@@ -93,3 +93,5 @@ try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(csvFile)).withSki
     e.printStackTrace();
 }
 
+Field codeListService in com.fhlbsf.ixweb.controllers.MapReloadRestController required a bean of type 'com.fhlbsf.ixweb.util.CodeListService' that could not be found.
+
