@@ -51,3 +51,45 @@ public class CSVRecordFetcher {
         }
     }
 }
+
+++++++++++++++++++++++++++++++
+try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(csvFile)).withSkipLines(1).build()) {
+    String[] header = csvReader.readNext(); // Read the header row
+
+    // Create a map to store header names and their corresponding indices
+    Map<String, Integer> headerIndices = new HashMap<>();
+
+    if (header != null) {
+        for (int i = 0; i < header.length; i++) {
+            headerIndices.put(header[i], i);
+        }
+
+        // Get the index of the "Name" column
+        Integer nameIndex = headerIndices.get("Name");
+
+        if (nameIndex != null) {
+            String[] row;
+
+            while ((row = csvReader.readNext()) != null) {
+                if (targetName.equalsIgnoreCase(row[nameIndex])) {
+                    // Create a Customer instance with the data from the CSV row
+                    Customer customer = new Customer(row[nameIndex], row[headerIndices.get("Email")]);
+
+                    // Access other fields dynamically using the headerIndices map
+                    String email = row[headerIndices.get("Email")];
+                    String phone = row[headerIndices.get("Phone")];
+
+                    // You can now work with the 'customer' object and other fields
+                    System.out.println("Customer Name: " + customer.getName());
+                    System.out.println("Customer Email: " + email);
+                    System.out.println("Customer Phone: " + phone);
+
+                    // Add more code to work with the 'customer' object and other fields as needed
+                }
+            }
+        }
+    }
+} catch (IOException | CsvValidationException e) {
+    e.printStackTrace();
+}
+
