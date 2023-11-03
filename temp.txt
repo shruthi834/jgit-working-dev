@@ -1,72 +1,29 @@
-public static void main(String[] args) {
-    String targetFile = "C:\\Users\\ryeso\\Downloads\\rahul.csv";
-    String sourceFile = "C:\\Users\\ryeso\\Downloads\\LoadCustomer_ryeso_102626001 (1).csv";
-    String targetId = "A";
-    String targetOrderNumber= "6901778";
-    
-    try (
-            CSVReader sourceReader = new CSVReaderBuilder(new FileReader(sourceFile)).withSkipLines(0).build();
-            CSVReader targetReader = new CSVReaderBuilder(new FileReader(targetFile)).withSkipLines(0).build();
-    ) {
-        List<String[]> sourceData = sourceReader.readAll();
-        List<String[]> targetData = targetReader.readAll();
 
-        boolean found = false;
-        String[] sourceHeader = sourceData.get(0); // Assuming the header is in the first row of the source file
-        String[] targetHeader = targetData.get(0); // Assuming the header is in the first row of the target file
+    public List<CodeList> getById(Integer memberId,String name){
+        List<CodeList> codeLists=new ArrayList<>();
+        try (CSVReader csvReader = new CSVReaderBuilder(new FileReader("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv")).build()) {
 
-        int sourceIdIndex = -1;
-        int sourceOrderNumberIndex = -1;
-        int targetIdIndex = -1;
-        int targetOrderNumberIndex = -1;
-
-        // Find the index of the "ID" and "Order Number" columns in the source and target headers
-        for (int i = 0; i < sourceHeader.length; i++) {
-            if (sourceHeader[i].equals("List ID")) {
-                sourceIdIndex = i;
-            } else if (sourceHeader[i].equals("Client ID")) {
-                sourceOrderNumberIndex = i;
-            }
-        }
-
-        for (int i = 0; i < targetHeader.length; i++) {
-            if (targetHeader[i].equals("List ID")) {
-                targetIdIndex = i;
-            } else if (targetHeader[i].equals("Client ID")) {
-                targetOrderNumberIndex = i;
-            }
-        }
-
-        // If "ID" and "Order Number" columns exist in both source and target headers
-        if (sourceIdIndex >= 0 && sourceOrderNumberIndex >= 0 && targetIdIndex >= 0 && targetOrderNumberIndex >= 0) {
-            for (int i = 1; i < sourceData.size(); i++) {
-                String[] sourceRow = sourceData.get(i);
-
-                if (sourceRow[sourceIdIndex].equals(targetId) && sourceRow[sourceOrderNumberIndex].equals(targetOrderNumber)) {
-                    found = true;
-                    // Find and update the matching row in the target data
-                    for (int j = 1; j < targetData.size(); j++) {
-                        String[] targetRow = targetData.get(j);
-                        if (targetRow[targetIdIndex].equals(targetId) && targetRow[targetOrderNumberIndex].equals(targetOrderNumber)) {
-                            targetData.set(j, sourceRow);
-                            break;
+            Map<String, Integer> headerIndices = new HashMap<>();
+            String[] header = csvReader.readNext(); // Read the header row
+            if (header != null) {
+                for (int i = 0; i < header.length; i++) {
+                    headerIndices.put(header[i], i);
+                }
+                int memberIdIndex=headerIndices.get("MEMBER_ID");
+                int nameIndex=headerIndices.get("NAME");
+                if (memberIdIndex >= 0) {
+                    String[] row;
+                    while ((row = csvReader.readNext()) != null) {
+                        if (String.valueOf(memberId).equals(row[memberIdIndex]) && name.equals(row[nameIndex])) {
+                            CodeList codeList=new CodeList(row[headerIndices.get("MEMBER_VALUE")],row[headerIndices.get("FHLB_VALUE")],row[headerIndices.get("NAME")],row[headerIndices.get("MAP_NAME")],row[headerIndices.get("PLEDGE_TYPE")],Integer.valueOf(row[headerIndices.get("ID")]));
+                            codeLists.add(codeList);
+                            Collections.sort(codeLists,Comparator.comparing(CodeList::getKey));
                         }
                     }
                 }
             }
-
-            if (found) {
-                try (CSVWriter csvWriter = new CSVWriter(new FileWriter(targetFile))) {
-                    csvWriter.writeAll(targetData);
-                    System.out.println("Row with ID " + targetId + " and Order Number " + targetOrderNumber + " has been updated in the CSV file.");
-                }
-            } else {
-                System.out.println("Row with ID " + targetId + " and Order Number " + targetOrderNumber + " not found in either source or target CSV file.");
-            }
-        } else {
-            System.out.println("ID or Order Number columns not found in either the source or target CSV file.");
+        } catch (IOException | CsvValidationException e) {
+            log.error("Error Fetching the record",e);
         }
-    } catch (IOException | CsvException e) {
-        e.printStackTrace();
+        return codeLists;
     }
-}
