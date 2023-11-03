@@ -1,97 +1,72 @@
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.exceptions.CsvValidationException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+public static void main(String[] args) {
+    String targetFile = "C:\\Users\\ryeso\\Downloads\\rahul.csv";
+    String sourceFile = "C:\\Users\\ryeso\\Downloads\\LoadCustomer_ryeso_102626001 (1).csv";
+    String targetId = "A";
+    String targetOrderNumber= "6901778";
+    
+    try (
+            CSVReader sourceReader = new CSVReaderBuilder(new FileReader(sourceFile)).withSkipLines(0).build();
+            CSVReader targetReader = new CSVReaderBuilder(new FileReader(targetFile)).withSkipLines(0).build();
+    ) {
+        List<String[]> sourceData = sourceReader.readAll();
+        List<String[]> targetData = targetReader.readAll();
 
-public class CSVRecordFetcher {
-    public static void main(String[] args) {
-        String csvFile = "C:\\Users\\ryeso\\Downloads\\listOfCustomers (2).csv";
-        String targetName = "John Doe"; // The name you want to look up
+        boolean found = false;
+        String[] sourceHeader = sourceData.get(0); // Assuming the header is in the first row of the source file
+        String[] targetHeader = targetData.get(0); // Assuming the header is in the first row of the target file
 
-        try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(csvFile)).withSkipLines(1).build()) {
-            String[] header = csvReader.readNext(); // Read the header row
+        int sourceIdIndex = -1;
+        int sourceOrderNumberIndex = -1;
+        int targetIdIndex = -1;
+        int targetOrderNumberIndex = -1;
 
-            if (header != null) {
-                int nameIndex = -1;
-                List<String[]> matchingRecords = new ArrayList<>();
+        // Find the index of the "ID" and "Order Number" columns in the source and target headers
+        for (int i = 0; i < sourceHeader.length; i++) {
+            if (sourceHeader[i].equals("List ID")) {
+                sourceIdIndex = i;
+            } else if (sourceHeader[i].equals("Client ID")) {
+                sourceOrderNumberIndex = i;
+            }
+        }
 
-                // Find the index of the "Name" column
-                for (int i = 0; i < header.length; i++) {
-                    if ("Name".equalsIgnoreCase(header[i])) {
-                        nameIndex = i;
-                        break;
-                    }
-                }
+        for (int i = 0; i < targetHeader.length; i++) {
+            if (targetHeader[i].equals("List ID")) {
+                targetIdIndex = i;
+            } else if (targetHeader[i].equals("Client ID")) {
+                targetOrderNumberIndex = i;
+            }
+        }
 
-                if (nameIndex >= 0) {
-                    String[] row;
+        // If "ID" and "Order Number" columns exist in both source and target headers
+        if (sourceIdIndex >= 0 && sourceOrderNumberIndex >= 0 && targetIdIndex >= 0 && targetOrderNumberIndex >= 0) {
+            for (int i = 1; i < sourceData.size(); i++) {
+                String[] sourceRow = sourceData.get(i);
 
-                    while ((row = csvReader.readNext()) != null) {
-                        if (targetName.equalsIgnoreCase(row[nameIndex])) {
-                            matchingRecords.add(row);
-                        }
-                    }
-
-                    if (!matchingRecords.isEmpty()) {
-                        // Print the complete rows for matching names
-                        for (String[] record : matchingRecords) {
-                            for (int i = 0; i < header.length; i++) {
-                                System.out.println(header[i] + ": " + record[i]);
-                            }
-                            System.out.println(); // Add a separator between records
+                if (sourceRow[sourceIdIndex].equals(targetId) && sourceRow[sourceOrderNumberIndex].equals(targetOrderNumber)) {
+                    found = true;
+                    // Find and update the matching row in the target data
+                    for (int j = 1; j < targetData.size(); j++) {
+                        String[] targetRow = targetData.get(j);
+                        if (targetRow[targetIdIndex].equals(targetId) && targetRow[targetOrderNumberIndex].equals(targetOrderNumber)) {
+                            targetData.set(j, sourceRow);
+                            break;
                         }
                     }
                 }
             }
-        } catch (IOException | CsvValidationException e) {
-            e.printStackTrace();
-        }
-    }
-}
 
-++++++++++++++++++++++++++++++
-try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(csvFile)).withSkipLines(1).build()) {
-    String[] header = csvReader.readNext(); // Read the header row
-
-    // Create a map to store header names and their corresponding indices
-    Map<String, Integer> headerIndices = new HashMap<>();
-
-    if (header != null) {
-        for (int i = 0; i < header.length; i++) {
-            headerIndices.put(header[i], i);
-        }
-
-        // Get the index of the "Name" column
-        Integer nameIndex = headerIndices.get("Name");
-
-        if (nameIndex != null) {
-            String[] row;
-
-            while ((row = csvReader.readNext()) != null) {
-                if (targetName.equalsIgnoreCase(row[nameIndex])) {
-                    // Create a Customer instance with the data from the CSV row
-                    Customer customer = new Customer(row[nameIndex], row[headerIndices.get("Email")]);
-
-                    // Access other fields dynamically using the headerIndices map
-                    String email = row[headerIndices.get("Email")];
-                    String phone = row[headerIndices.get("Phone")];
-
-                    // You can now work with the 'customer' object and other fields
-                    System.out.println("Customer Name: " + customer.getName());
-                    System.out.println("Customer Email: " + email);
-                    System.out.println("Customer Phone: " + phone);
-
-                    // Add more code to work with the 'customer' object and other fields as needed
+            if (found) {
+                try (CSVWriter csvWriter = new CSVWriter(new FileWriter(targetFile))) {
+                    csvWriter.writeAll(targetData);
+                    System.out.println("Row with ID " + targetId + " and Order Number " + targetOrderNumber + " has been updated in the CSV file.");
                 }
+            } else {
+                System.out.println("Row with ID " + targetId + " and Order Number " + targetOrderNumber + " not found in either source or target CSV file.");
             }
+        } else {
+            System.out.println("ID or Order Number columns not found in either the source or target CSV file.");
         }
+    } catch (IOException | CsvException e) {
+        e.printStackTrace();
     }
-} catch (IOException | CsvValidationException e) {
-    e.printStackTrace();
 }
-
-Field codeListService in com.fhlbsf.ixweb.controllers.MapReloadRestController required a bean of type 'com.fhlbsf.ixweb.util.CodeListService' that could not be found.
-
