@@ -1,30 +1,40 @@
+import net.quux00.simplecsv.Csv;
+import net.quux00.simplecsv.CsvReader;
+import net.quux00.simplecsv.CsvRow;
 
-    public List<CodeList> getById(Integer memberId,String name){
-        List<CodeList> codeLists=new ArrayList<>();
-        try (CSVReader csvReader = new CSVReaderBuilder(new FileReader("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv")).build()) {
+public List<CodeList> getById(Integer memberId, String name) {
+    List<CodeList> codeLists = new ArrayList<>();
 
-            Map<String, Integer> headerIndices = new HashMap<>();
-            String[] header = csvReader.readNext(); // Read the header row
-            if (header != null) {
-                for (int i = 0; i < header.length; i++) {
-                    headerIndices.put(header[i], i);
-                }
-                int memberIdIndex=headerIndices.get("MEMBER_ID");
-                int nameIndex=headerIndices.get("NAME");
-                if (memberIdIndex >= 0) {
-                    String[] row;
-                    while ((row = csvReader.readNext()) != null) {
-                        if (String.valueOf(memberId).equals(row[memberIdIndex]) && name.equals(row[nameIndex])) {
-                            CodeList codeList=new CodeList(row[headerIndices.get("MEMBER_VALUE")],row[headerIndices.get("FHLB_VALUE")],row[headerIndices.get("NAME")],row[headerIndices.get("MAP_NAME")],row[headerIndices.get("PLEDGE_TYPE")],Integer.valueOf(row[headerIndices.get("ID")]));
-                            codeLists.add(codeList);
-                            Collections.sort(codeLists,Comparator.comparing(CodeList::getKey));
-                        }
-                    }
+    try (CsvReader csvReader = Csv.reader().from(new FileReader("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv"))) {
+        CsvRow header = csvReader.readRow();
+        if (header != null) {
+            int memberIdIndex = header.getIndex("MEMBER_ID");
+            int nameIndex = header.getIndex("NAME");
+
+            CsvRow row;
+            while ((row = csvReader.readRow()) != null) {
+                String memberIdValue = row.getField(memberIdIndex);
+                String nameValue = row.getField(nameIndex);
+
+                if (String.valueOf(memberId).equals(memberIdValue) && name.equals(nameValue)) {
+                    CodeList codeList = new CodeList(
+                        row.getField("MEMBER_VALUE"),
+                        row.getField("FHLB_VALUE"),
+                        nameValue,
+                        row.getField("MAP_NAME"),
+                        row.getField("PLEDGE_TYPE"),
+                        Integer.valueOf(row.getField("ID"))
+                    );
+
+                    codeLists.add(codeList);
                 }
             }
-        } catch (IOException | CsvValidationException e) {
-            log.error("Error Fetching the record",e);
         }
-        return codeLists;
+    } catch (IOException e) {
+        log.error("Error Fetching the record", e);
     }
-net.quux00.simplecsv
+
+    codeLists.sort(Comparator.comparing(CodeList::getKey));
+
+    return codeLists;
+}
