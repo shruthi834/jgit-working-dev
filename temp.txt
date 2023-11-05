@@ -1,40 +1,4 @@
-import net.quux00.simplecsv.Csv;
-import net.quux00.simplecsv.CsvReader;
-import net.quux00.simplecsv.CsvRow;
+CsvReader csvReader = new CsvReaderBuilder(new FileReader("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv")).skipLines(0).build()) {
 
-public List<CodeList> getById(Integer memberId, String name) {
-    List<CodeList> codeLists = new ArrayList<>();
-
-    try (CsvReader csvReader = Csv.reader().from(new FileReader("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv"))) {
-        CsvRow header = csvReader.readRow();
-        if (header != null) {
-            int memberIdIndex = header.getIndex("MEMBER_ID");
-            int nameIndex = header.getIndex("NAME");
-
-            CsvRow row;
-            while ((row = csvReader.readRow()) != null) {
-                String memberIdValue = row.getField(memberIdIndex);
-                String nameValue = row.getField(nameIndex);
-
-                if (String.valueOf(memberId).equals(memberIdValue) && name.equals(nameValue)) {
-                    CodeList codeList = new CodeList(
-                        row.getField("MEMBER_VALUE"),
-                        row.getField("FHLB_VALUE"),
-                        nameValue,
-                        row.getField("MAP_NAME"),
-                        row.getField("PLEDGE_TYPE"),
-                        Integer.valueOf(row.getField("ID"))
-                    );
-
-                    codeLists.add(codeList);
-                }
-            }
-        }
-    } catch (IOException e) {
-        log.error("Error Fetching the record", e);
-    }
-
-    codeLists.sort(Comparator.comparing(CodeList::getKey));
-
-    return codeLists;
-}
+            Map<String, Integer> headerIndices = new HashMap<>();
+            List<String> header = csvReader.readNext(); 
