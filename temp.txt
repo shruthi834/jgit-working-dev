@@ -1,4 +1,25 @@
-CsvReader csvReader = new CsvReaderBuilder(new FileReader("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv")).skipLines(0).build()) {
-
+public void deleteCodeListByMemberId(String memberId,String pledgeType,String name){
+        try (CsvReader csvReader = new CsvReaderBuilder(new FileReader("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv")).skipLines(0).build()) {
+            List<List<String>> rowsToKeepInExcel = new ArrayList<>();
             Map<String, Integer> headerIndices = new HashMap<>();
-            List<String> header = csvReader.readNext(); 
+            List<String> row;
+            List<String> header = csvReader.readNext();
+            if (header != null) {
+                for (int i = 0; i < header.size(); i++) {
+                    headerIndices.put(header.get(i), i);
+                }
+            }
+            while ((row = csvReader.readNext()) != null) {
+                if (!(memberId.equals(row.get(headerIndices.get("MEMBER_ID"))) && pledgeType.equals(row.get(headerIndices.get("PLEDGE_TYPE"))) && name.equals(row.get(headerIndices.get("NAME"))))) {
+                    rowsToKeepInExcel.add(row);
+                }
+            }
+            try (CsvWriter csvWriter = new CsvWriterBuilder(new FileWriter("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv")).build()) {
+                csvWriter.writeAll(rowsToKeepInExcel);
+            }
+//            System.out.println("Row with Id" + targetId + "has been deleted");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
