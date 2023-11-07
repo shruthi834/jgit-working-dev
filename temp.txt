@@ -1,25 +1,34 @@
-public void deleteCodeListByMemberId(String memberId,String pledgeType,String name){
-        try (CsvReader csvReader = new CsvReaderBuilder(new FileReader("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv")).skipLines(0).build()) {
-            List<List<String>> rowsToKeepInExcel = new ArrayList<>();
-            Map<String, Integer> headerIndices = new HashMap<>();
-            List<String> row;
-            List<String> header = csvReader.readNext();
+ublic List<String> getListofRecordsByMapName(String memberId, String mapName, String pledgeType){
+        List<String> distinctCodeLists = new ArrayList<>();
+        List<String> codeLists=new ArrayList<>();
+        Map<String, Integer> headerIndices = new HashMap<>();
+        int count=0;
+        try (CsvReader csvReader = new CsvReaderBuilder(new FileReader(stashRepository+"/"+stashCodeList)).skipLines(0).build()) {
+            List<String> header = csvReader.readNext(); // Read the header row
             if (header != null) {
                 for (int i = 0; i < header.size(); i++) {
                     headerIndices.put(header.get(i), i);
                 }
-            }
-            while ((row = csvReader.readNext()) != null) {
-                if (!(memberId.equals(row.get(headerIndices.get("MEMBER_ID"))) && pledgeType.equals(row.get(headerIndices.get("PLEDGE_TYPE"))) && name.equals(row.get(headerIndices.get("NAME"))))) {
-                    rowsToKeepInExcel.add(row);
+                Integer nameIndex = headerIndices.get("MAP_NAME");
+                if (nameIndex >= 0) {
+                    List<String> row;
+                    while ((row = csvReader.readNext()) != null) {
+//                        if(!StringUtils.isBlank(mapName)){(mapName == null || mapName.equals(row.get(nameIndex)))
+                            if (memberId.equals(row.get(headerIndices.get("MEMBER_ID"))) && pledgeType.equals(row.get(headerIndices.get("PLEDGE_TYPE")))) {
+                                codeLists.add(row.get(headerIndices.get("NAME")));
+                                distinctCodeLists=codeLists.stream().distinct().collect(Collectors.toList());
+                            }
+//                        }
+//                        else if(memberId.equals(row.get(headerIndices.get("MEMBER_ID"))) && pledgeType.equals(row.get(headerIndices.get("PLEDGE_TYPE")))){
+//                            codeLists.add(row.get(headerIndices.get("NAME")));
+//                            distinctCodeLists=codeLists.stream().distinct().collect(Collectors.toList());
+//                        }
+                    }
                 }
+                Collections.sort(distinctCodeLists);
             }
-            try (CsvWriter csvWriter = new CsvWriterBuilder(new FileWriter("H:\\repository\\ixmcm\\src\\main\\resources\\ixmcm_translation_codes\\IXMCM_TRANSLATION_CODES.csv")).build()) {
-                csvWriter.writeAll(rowsToKeepInExcel);
-            }
-//            System.out.println("Row with Id" + targetId + "has been deleted");
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error Fetching the record",e);
         }
-
+        return distinctCodeLists;
     }
