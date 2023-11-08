@@ -1,39 +1,45 @@
-[Yesterday 11:58] Rahul Yeso
-@PostMapping("/divide_the_CSV")
-public void createCSV(){
-String inputFilePath = "C:\\Users\\ryeso\\Downloads\\old File.csv";  // Replace with your source CSV file path
-    String outputDirectory = "C:\\Users\\ryeso\\Downloads\\";  // Specify the output directory
-    try {
-        // Read the source CSV file
-        CSVReader reader = new CSVReader(new FileReader(inputFilePath));
-        String[] header = reader.readNext(); // Read and store the header row
-        String[] nextLine;
-        Map<String, CSVWriter> writers = new HashMap<>();
-        // Create the output directory if it doesn't exist
-        new File(outputDirectory).mkdirs();
-        while ((nextLine = reader.readNext()) != null) {
-            if (nextLine.length > 0) {
-                String id = nextLine[0];
-                CSVWriter writer = writers.get(id);
-                if (writer == null) {
-                    // Create a new CSV file for the ID in the specified output directory
-                    String outputFile = outputDirectory + id + ".csv";
-                    writer = new CSVWriter(new FileWriter(outputFile));
-                    // Write the header row to the new file
-                    writer.writeNext(header);
-                    writers.put(id, writer);
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
+public class UpdateCSVBasedOnID {
+    public static void main(String[] args) {
+        String filePath = "your_file.csv"; // Replace with your CSV file path
+        String targetID = "123"; // Replace with the ID you want to search for
+
+        try {
+            // Read the CSV file
+            CSVReader csvReader = new CSVReader(new FileReader(filePath));
+            List<String[]> data = csvReader.readAll();
+            csvReader.close();
+
+            // Find the record with the matching ID
+            int idColumnIndex = 0; // Assuming the ID is in the first column
+
+            for (String[] row : data) {
+                if (row.length > idColumnIndex && row[idColumnIndex].equals(targetID)) {
+                    // Update the data
+                    int columnToUpdate = 1; // Example column to update
+                    String newValue = "Updated Value";
+
+                    row[columnToUpdate] = newValue;
+
+                    break; // Exit the loop once the record is updated
                 }
-                // Write the record to the respective CSV file
-                writer.writeNext(nextLine);
             }
+
+            // Write the updated data back to the CSV file
+            CSVWriter csvWriter = new CSVWriter(new FileWriter(filePath));
+            csvWriter.writeAll(data);
+            csvWriter.close();
+
+            System.out.println("CSV file updated successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        reader.close();
-        // Close all CSV writers
-        for (CSVWriter writer : writers.values()) {
-            writer.close();
-        }
-        System.out.println("CSV files created based on IDs, with correct headers, in the '" + outputDirectory + "' directory.");
-    } catch (IOException | CsvValidationException e) {
-        e.printStackTrace();
     }
 }
