@@ -1,6 +1,39 @@
-List<String> codeListWithoutHeader = rows.subList(1, rows.size());
-        for(String row:codeListWithoutHeader){
-            String[] rowValueSplited=row.split(",");
-            int id = jdbcTemplate.queryForObject("select IXMCM_TRANSLATION_CODE_SEQ.nextval from dual", Integer.class);
-            codeListService.insertData(id,memberId,rowValueSplited[0],rowValueSplited[1],rowValueSplited[2],mapName,pledgeType);
+[Yesterday 11:58] Rahul Yeso
+@PostMapping("/divide_the_CSV")
+public void createCSV(){
+String inputFilePath = "C:\\Users\\ryeso\\Downloads\\old File.csv";  // Replace with your source CSV file path
+    String outputDirectory = "C:\\Users\\ryeso\\Downloads\\";  // Specify the output directory
+    try {
+        // Read the source CSV file
+        CSVReader reader = new CSVReader(new FileReader(inputFilePath));
+        String[] header = reader.readNext(); // Read and store the header row
+        String[] nextLine;
+        Map<String, CSVWriter> writers = new HashMap<>();
+        // Create the output directory if it doesn't exist
+        new File(outputDirectory).mkdirs();
+        while ((nextLine = reader.readNext()) != null) {
+            if (nextLine.length > 0) {
+                String id = nextLine[0];
+                CSVWriter writer = writers.get(id);
+                if (writer == null) {
+                    // Create a new CSV file for the ID in the specified output directory
+                    String outputFile = outputDirectory + id + ".csv";
+                    writer = new CSVWriter(new FileWriter(outputFile));
+                    // Write the header row to the new file
+                    writer.writeNext(header);
+                    writers.put(id, writer);
+                }
+                // Write the record to the respective CSV file
+                writer.writeNext(nextLine);
+            }
         }
+        reader.close();
+        // Close all CSV writers
+        for (CSVWriter writer : writers.values()) {
+            writer.close();
+        }
+        System.out.println("CSV files created based on IDs, with correct headers, in the '" + outputDirectory + "' directory.");
+    } catch (IOException | CsvValidationException e) {
+        e.printStackTrace();
+    }
+}
