@@ -1,34 +1,6 @@
-ublic List<String> getListofRecordsByMapName(String memberId, String mapName, String pledgeType){
-        List<String> distinctCodeLists = new ArrayList<>();
-        List<String> codeLists=new ArrayList<>();
-        Map<String, Integer> headerIndices = new HashMap<>();
-        int count=0;
-        try (CsvReader csvReader = new CsvReaderBuilder(new FileReader(stashRepository+"/"+stashCodeList)).skipLines(0).build()) {
-            List<String> header = csvReader.readNext(); // Read the header row
-            if (header != null) {
-                for (int i = 0; i < header.size(); i++) {
-                    headerIndices.put(header.get(i), i);
-                }
-                Integer nameIndex = headerIndices.get("MAP_NAME");
-                if (nameIndex >= 0) {
-                    List<String> row;
-                    while ((row = csvReader.readNext()) != null) {
-//                        if(!StringUtils.isBlank(mapName)){(mapName == null || mapName.equals(row.get(nameIndex)))
-                            if (memberId.equals(row.get(headerIndices.get("MEMBER_ID"))) && pledgeType.equals(row.get(headerIndices.get("PLEDGE_TYPE")))) {
-                                codeLists.add(row.get(headerIndices.get("NAME")));
-                                distinctCodeLists=codeLists.stream().distinct().collect(Collectors.toList());
-                            }
-//                        }
-//                        else if(memberId.equals(row.get(headerIndices.get("MEMBER_ID"))) && pledgeType.equals(row.get(headerIndices.get("PLEDGE_TYPE")))){
-//                            codeLists.add(row.get(headerIndices.get("NAME")));
-//                            distinctCodeLists=codeLists.stream().distinct().collect(Collectors.toList());
-//                        }
-                    }
-                }
-                Collections.sort(distinctCodeLists);
-            }
-        } catch (IOException e) {
-            log.error("Error Fetching the record",e);
+List<String> codeListWithoutHeader = rows.subList(1, rows.size());
+        for(String row:codeListWithoutHeader){
+            String[] rowValueSplited=row.split(",");
+            int id = jdbcTemplate.queryForObject("select IXMCM_TRANSLATION_CODE_SEQ.nextval from dual", Integer.class);
+            codeListService.insertData(id,memberId,rowValueSplited[0],rowValueSplited[1],rowValueSplited[2],mapName,pledgeType);
         }
-        return distinctCodeLists;
-    }
