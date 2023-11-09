@@ -1,1 +1,4 @@
-     <input type="text" id="customerId" name="customerId" th:value="${memberId}" placeholder="Customer Id"/>
+I hope this mail finds you well.I am writing this mail to seek few clarification on codeList.
+1.	When we divide the csv file based on the memberId there are few place where memberId is null so how to handle that..
+2.	For codeList data will there be further new insertions if yes then how to handle that.
+
