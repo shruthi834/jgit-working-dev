@@ -1,26 +1,19 @@
-Subject: Clarification Needed on CodeList Processing
-
-Dear [Recipient's Name],
-
-I trust this email finds you well. I am writing to seek clarification on a couple of aspects related to the codeList processing. Your insights on the following points would be greatly appreciated:
-
-Handling Null MemberID in CSV Division:
-When dividing the CSV file based on the MemberID, there are instances where the MemberID is null. Could you please provide guidance on how to appropriately handle such cases? Your recommendations on managing null MemberIDs in this context would be invaluable.
-
-Handling New Insertions for CodeList Data:
-I am curious to know if there will be further insertions of data into the codeList. If this is the case, could you please outline the recommended approach for handling these new insertions? Understanding the procedure for accommodating additional data will help ensure a smooth and scalable process.
-
-I understand that your time is valuable, and I appreciate your assistance in clarifying these points. If you prefer, we can schedule a brief meeting to discuss these matters in more detail.
-
-Thank you in advance for your time and guidance. I look forward to your response.
-
-Best regards,
-
-[Your Full Name]
-[Your Position]
-[Your Contact Information]
-
-
-
-
-
+  List<ArchivedFile> commitDetailsList = new ArrayList<>();
+        try (Repository repository = Git.open(new File(stashRepository)).getRepository()) {
+            Git git = new Git(repository);
+            String publishedMapPath = stashPublished + className +".java";
+            File fileSize = new File(stashRepository+"/"+publishedMapPath);
+            Iterable<RevCommit> logs = git.log().addPath(publishedMapPath).call();
+            List<RevCommit> logsAddedToList = new ArrayList<>();
+            for(RevCommit commitLength :logs){
+                logsAddedToList.add(commitLength);
+            }
+            for (RevCommit commit : logsAddedToList) {
+                ArchivedFile archivedFile=new ArchivedFile(null,commit.getId().getName(),commit.getFullMessage(),FileUtils.sizeOf(fileSize),commit.getAuthorIdent().getWhen(),"N");
+                commitDetailsList.add(archivedFile);
+            }
+        }
+        catch (Exception e) {
+            log.error("Error in retrieving the commit history : " , e);
+        }
+        return commitDetailsList;
