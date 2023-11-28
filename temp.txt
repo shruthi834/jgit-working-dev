@@ -1,1 +1,12 @@
-(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+ function deleteByCustomerKey(row,key) {
+    	$.getJSON('/api/codeList/deleteLookup', {
+    		customerKey: key,
+    		memberId: $('#codeListFhlbId').val()
+    		}, function (data) {
+    		console.log("hey shruthi");
+//    		codeListGrid.getData().splice(codeListGrid.getSelectedRows()[0], 1);
+    		codeListGrid.invalidateAllRows();
+    		codeListGrid.render();
+    		codeListGrid.resizeCanvas();
+    	});
+    };
