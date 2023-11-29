@@ -1,10 +1,18 @@
- function deleteByCustomerKey(row,key) {
-        	$.ajax({
-                    url: '/api/codeList/deleteLookup',
-                    type: "GET",
-                    data: "customerKey="+key +"&memberId=" +$('#codeListFhlbId').val(),
-               }).always(function () {
-                    updateCodeListGrid();
-                    $.growl.notice({title: "Success", message: key+ " CodeList Deleted" , duration: 3600000});
-            });
-        }
+function deleteByCustomerKey(row, key) {
+    var codeListFhlbId;
+
+    if ($('#codeListFhlbIdPage1').length > 0) {
+        codeListFhlbId = $('#codeListFhlbIdPage1').val();
+    } else if ($('#codeListFhlbIdPage2').length > 0) {
+        codeListFhlbId = $('#codeListFhlbIdPage2').val();
+    }
+
+    $.ajax({
+        url: '/api/codeList/deleteLookup',
+        type: "GET",
+        data: "customerKey=" + key + "&memberId=" + codeListFhlbId,
+    }).always(function () {
+        updateCodeListGrid();
+        $.growl.notice({ title: "Success", message: key + " CodeList Deleted", duration: 3600000 });
+    });
+}
