@@ -1,12 +1,10 @@
  function deleteByCustomerKey(row,key) {
-    	$.getJSON('/api/codeList/deleteLookup', {
-    		customerKey: key,
-    		memberId: $('#codeListFhlbId').val()
-    		}, function (data) {
-    		console.log("hey shruthi");
-//    		codeListGrid.getData().splice(codeListGrid.getSelectedRows()[0], 1);
-    		codeListGrid.invalidateAllRows();
-    		codeListGrid.render();
-    		codeListGrid.resizeCanvas();
-    	});
-    };
+        	$.ajax({
+                    url: '/api/codeList/deleteLookup',
+                    type: "GET",
+                    data: "customerKey="+key +"&memberId=" +$('#codeListFhlbId').val(),
+               }).always(function () {
+                    updateCodeListGrid();
+                    $.growl.notice({title: "Success", message: key+ " CodeList Deleted" , duration: 3600000});
+            });
+        }
