@@ -1,2 +1,10 @@
 git.reset().setMode(ResetCommand.ResetType.MIXED).addPath(filePath).call();
  git.reset().setMode(ResetCommand.ResetType.SOFT).call();
+// Create a RevertCommand
+            RevertCommand revertCommand = git.revert();
+
+            // Set the commit to revert
+            revertCommand.include(commit);
+
+            // Perform the revert
+            revertCommand.call();
