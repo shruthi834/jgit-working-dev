@@ -8,3 +8,4 @@ git.reset().setMode(ResetCommand.ResetType.MIXED).addPath(filePath).call();
 
             // Perform the revert
             revertCommand.call();
+git.reset().setMode(ResetCommand.ResetType.HARD).setRef("HEAD~");
