@@ -1,1 +1,2 @@
 git.reset().setMode(ResetCommand.ResetType.MIXED).addPath(filePath).call();
+ git.reset().setMode(ResetCommand.ResetType.SOFT).call();
