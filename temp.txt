@@ -1,72 +1,57 @@
-@SpringBootApplication
-public class JgitProjectApplication implements ApplicationRunner {
-    private static Logger LOG = LoggerFactory
-          .getLogger(JgitProjectApplication.class);
+public String cloneStashRepository() {
+        log.info("Started : Executing Clone method");
+        // Check if the local folder is empty (no duplicate filenames)
+        File localFolder = new File(localClonePath);
+        final CloneCommand cloneResults;
+        if(isRepoExist()) {
+            log.warn("Repo already exists, processing GIT PULL");
+            String pullResult = doGitPull();
+            return pullResult;
+        }
+            // Create an ExecutorService with a fixed number of threads
+//            ExecutorService executor = Executors.newFixedThreadPool(1);
+//            CompletableFuture<Void> cloneFuture = CompletableFuture.runAsync(() -> {
+        try {
+            Git.cloneRepository()
+                    .setURI(stashUrl)
+                    .setBranch("refs/heads/feature/jGit-feature")
+                    .setDirectory(localFolder)
+                    .setCredentialsProvider(
+                            new UsernamePasswordCredentialsProvider(stashUsername, stashPassword)
+                    )
+                    .call();
 
-    public static void main(String[] args) throws SchedulerException {
-       LOG.info("STARTING : Spring boot application starting");
-       SpringApplication.run(JgitProjectApplication.class, args);
-       // Create a job detail for your job class
-       JobDetail jobDetail = JobBuilder.newJob(DefaultScheduler.class)
-             .withIdentity("defaultScheduler", "group")
-             .build();
-
-       // Create a trigger that fires every 10 seconds
-       Trigger trigger = TriggerBuilder.newTrigger()
-             .withIdentity("trigger", "group")
-             .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                   .withIntervalInSeconds(60) // Set the interval to 10 seconds
-                   .repeatForever())          // Repeat indefinitely
-             .build();
-
-       // Create a scheduler and start it
-       Scheduler scheduler = new StdSchedulerFactory().getScheduler();
-       scheduler.start();
-
-       // Schedule the job with the trigger
-       scheduler.scheduleJob(jobDetail, trigger);
+            log.info("Repository cloned successfully.");
+        } catch (JGitInternalException | GitAPIException e) {
+            log.error("Git-Clone Fatal Error: ", e);
+            throw new RuntimeException(" Fatal errorGit-Clone Fatal Error", e);
+        }
+        finally {
+            Git.shutdown();
+        }
+//            }, executor);
+            // Wait for the cloning process to complete
+//            cloneFuture.join();
+//            executor.shutdown();
+        log.info("Cloning : Cloning method has ended");
+        return "";
     }
-    @Override
-    public void run(ApplicationArguments args) {
-       LOG.info("Started : Executing Clone method");
-       //for remoteRepo we need to add the HTTPS link from github
-       //for localClonePath is the local destination where you need to clone the repo.
-       String remoteRepoURL = "https://bitbucket.org/jgit-opt/jgit.git";
-       String localClonePath = "D:\\Jgit\\Trail12";
 
-       // Check if the local folder is empty (no duplicate filenames)
-       File localFolder = new File(localClonePath);
 
-          // Create an ExecutorService with a fixed number of threads
-          ExecutorService executor = Executors.newFixedThreadPool(1);
-
-          CompletableFuture<Void> cloneFuture = CompletableFuture.runAsync(() -> {
-             UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("ryeso", "ATBBNcHSHpvvZVpJHznPC8pmqL5UF2392D90");
-
-             try {
-                Git.cloneRepository()
-                      .setURI(remoteRepoURL)
-                      .setBranch("TestingCommitHistory")
-                      .setDirectory(localFolder)
-                      .setCredentialsProvider(credentialsProvider)
-                      .call();
-                System.out.println("Repository cloned successfully.");
-             } catch (JGitInternalException | GitAPIException e) {
-                System.err.println("Git Error: " + e.getMessage());
-                LOG.error(e.getMessage());
-//              throw new RuntimeException(" Fatal error", e);
-             }
-          }, executor);
-
-          // Wait for the cloning process to complete
-          cloneFuture.join();
-
-          executor.shutdown();
-
-          LOG.info("Clonning : Cloning method has ended");
-       }
-<dependency>
-    <groupId>org.quartz-scheduler</groupId>
-    <artifactId>quartz</artifactId>
-    <version>2.3.2</version> <!-- Use the desired version -->
-</dependency>
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ private boolean isRepoExist() {
+        try(Repository repo = Git.open(new File(this.localClonePath)).getRepository()) {
+            //TODO need to refine t this
+            //if (RepositoryCache.FileKey.isGitRepository(new File(this.localClonePath), FS.DETECTED)) {
+            // Already cloned. look for successful clone.
+            for (Ref ref : repo.getAllRefs().values()) {
+                if (ref.getObjectId() == null)
+                    continue;
+                return Boolean.TRUE;
+            }
+        }catch(IOException e) {
+            log.error(" GIT Repo - Fatal Error", e);
+            return Boolean.FALSE;
+        }
+        return Boolean.FALSE;
+    }
