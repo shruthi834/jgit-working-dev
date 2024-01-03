@@ -1,0 +1,52 @@
+package com.fhlbsf.ix.scheduler;
+
+import com.fhlbsf.ixweb.util.StashService;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.io.File;
+
+@Component("stashScheduledTask")
+public class StashScheduledTask {
+
+    @Autowired
+    StashService stashService;
+    @Value("${stash.url}")
+    String stashUrl;
+    @Value("${stash.branch}")
+    String stashBranch;
+    @Value("${stash.username}")
+    String stashUsername;
+    @Value("${stash.password}")
+    String stashPassword;
+    @Value("${stash.repo.clone.location}")
+    String localClonePath;
+    Logger log = LoggerFactory.getLogger(StashService.class);
+    @Scheduled(cron = "0 0 0 * * *")
+    public void scheduleFixedDelayTask() {
+        try{
+            stashService.cloneStashRepository();
+            /*Git.cloneRepository()
+                    .setURI(stashUrl)
+                    .setBranch("refs/heads/feature/jGit-feature")
+                    .setDirectory(localFolder)
+                    .setCredentialsProvider(
+                            new UsernamePasswordCredentialsProvider(stashUsername, stashPassword)
+                    )
+                    .call();*/
+        }
+      catch (Exception e){
+          log.info("Repository cloned failed.");
+      }
+        System.out.println("-----------------------------------------------------------------------");
+    }
+}
+(scheduler)
+++++++++++++++++++++++++++++++++
+
