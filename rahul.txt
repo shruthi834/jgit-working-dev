@@ -49,4 +49,17 @@ public class StashScheduledTask {
 }
 (scheduler)
 ++++++++++++++++++++++++++++++++
-
+ public String doGitPull(){
+        try(Git git = Git.open(new File(this.localClonePath))){
+            PullResult pullResult = git.pull()
+                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(stashUsername, stashPassword))
+                    .setRemote("origin")
+                    .setRemoteBranchName("feature/jGit-feature")
+                    .call();
+            log.info("Git Pull"+pullResult.getFetchResult().getTrackingRefUpdates().toString());
+            return pullResult.getFetchResult().getTrackingRefUpdates().toString();
+        }
+        catch (Exception e){
+            log.error("Git Pull Fatal-Error",e);
+            throw new RuntimeException(e);
+        }
