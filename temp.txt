@@ -1,57 +1,63 @@
-public String cloneStashRepository() {
-        log.info("Started : Executing Clone method");
-        // Check if the local folder is empty (no duplicate filenames)
-        File localFolder = new File(localClonePath);
-        final CloneCommand cloneResults;
-        if(isRepoExist()) {
-            log.warn("Repo already exists, processing GIT PULL");
-            String pullResult = doGitPull();
-            return pullResult;
-        }
-            // Create an ExecutorService with a fixed number of threads
-//            ExecutorService executor = Executors.newFixedThreadPool(1);
-//            CompletableFuture<Void> cloneFuture = CompletableFuture.runAsync(() -> {
-        try {
-            Git.cloneRepository()
-                    .setURI(stashUrl)
-                    .setBranch("refs/heads/feature/jGit-feature")
-                    .setDirectory(localFolder)
-                    .setCredentialsProvider(
-                            new UsernamePasswordCredentialsProvider(stashUsername, stashPassword)
-                    )
-                    .call();
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-            log.info("Repository cloned successfully.");
-        } catch (JGitInternalException | GitAPIException e) {
-            log.error("Git-Clone Fatal Error: ", e);
-            throw new RuntimeException(" Fatal errorGit-Clone Fatal Error", e);
-        }
-        finally {
-            Git.shutdown();
-        }
-//            }, executor);
-            // Wait for the cloning process to complete
-//            cloneFuture.join();
-//            executor.shutdown();
-        log.info("Cloning : Cloning method has ended");
-        return "";
-    }
+import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
 
+public class ParallelJGitCloneExample {
+    public static void main(String[] args) {
+        String repoURL = "https://bitbucket.org/jgit-opt/jgit.git";
+        String localPath = "D:\\Jgit\\Trail12";
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- private boolean isRepoExist() {
-        try(Repository repo = Git.open(new File(this.localClonePath)).getRepository()) {
-            //TODO need to refine t this
-            //if (RepositoryCache.FileKey.isGitRepository(new File(this.localClonePath), FS.DETECTED)) {
-            // Already cloned. look for successful clone.
-            for (Ref ref : repo.getAllRefs().values()) {
-                if (ref.getObjectId() == null)
-                    continue;
-                return Boolean.TRUE;
+        Instant start = Instant.now(); // Record start time for both tasks
+
+        // Run the cloning process asynchronously
+        CompletableFuture<Void> cloningProcess = CompletableFuture.runAsync(() -> {
+            boolean repoExistsLocally = isLocalRepository(new File(localPath));
+
+            if (repoExistsLocally) {
+                System.out.println("Repository already exists locally.");
+            } else {
+                try {
+                    cloneRepository(repoURL, localPath);
+                    System.out.println("Repository cloned successfully.");
+                } catch (GitAPIException e) {
+                    e.printStackTrace();
+                }
             }
-        }catch(IOException e) {
-            log.error(" GIT Repo - Fatal Error", e);
-            return Boolean.FALSE;
+        });
+
+        // Main method logic here (runs concurrently with cloning)
+        System.out.println("Main method is executing concurrently.");
+
+        // Wait for both tasks to complete before finishing
+        try {
+            cloningProcess.get(); // Wait for the cloning process to finish
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return Boolean.FALSE;
+
+        Instant end = Instant.now(); // Record end time after both tasks complete
+        Duration totalTime = Duration.between(start, end);
+        System.out.println("Total execution time: " + totalTime.toMillis() + " milliseconds.");
+        System.out.println("All tasks have completed.");
     }
+
+    private static boolean isLocalRepository(File localRepo) {
+        return localRepo.exists();
+    }
+
+    private static void cloneRepository(String repoURL, String localPath) throws GitAPIException {
+        UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("ryeso", "ATBBNcHSHpvvZVpJHznPC8pmqL5UF2392D90");
+
+        Git.cloneRepository()
+                .setURI(repoURL)
+                .setDirectory(new File(localPath))
+                .setCredentialsProvider(credentialsProvider)
+                .call();
+    }
+}
+ 
